@@ -1,0 +1,13 @@
+server:
+  port: ${SERVER_PORT:9999}
+
+spring:
+  application:
+    name: otus_highload
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    default-schema: ${DATASOURCE_DEFAULT_SCHEMA:otus_highload}
