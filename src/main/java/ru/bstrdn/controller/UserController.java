@@ -1,5 +1,6 @@
 package ru.bstrdn.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,5 +34,11 @@ public class UserController implements DefaultApi {
       UserRegisterPostRequest userRegisterPostRequest) {
     String userId = userService.createUser(userRegisterPostRequest);
     return ResponseEntity.ok(UserRegisterPost200Response.builder().userId(userId).build());
+  }
+
+  @Override
+  public ResponseEntity<List<User>> userSearchGet(String firstName, String lastName) {
+    List<User> users = userService.searchUsers(firstName, lastName);
+    return ResponseEntity.ok(users);
   }
 }

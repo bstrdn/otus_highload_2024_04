@@ -1,8 +1,12 @@
 package ru.bstrdn.data.repository;
 
+import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,39 +20,46 @@ import ru.bstrdn.data.dto.UserWithPassword;
 @RequiredArgsConstructor
 public class UserRepository {
 
-  private static final String CREATE_USER_SQL = "INSERT INTO \"user\" (id, first_name, second_name, birthdate, biography, city, password)"
-      + "VALUES (:id, :first_name, :second_name, :birthdate, :biography, :city, :password) RETURNING id";
+  @Value("${spring.liquibase.default-schema}")
+  private String schema;
 
+  private String CREATE_USER_SQL;
+  private String GET_USER_BY_ID_SQL;
+  private String SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME;
 
-  private static final String GET_USER_BY_ID_SQL = "SELECT u.id, u.first_name, u.second_name, u.birthdate, u.biography, u.city, u.password "
-      + "FROM \"user\" u WHERE u.id = :id";
-
+  @PostConstruct
+  private void initSqlQuery() {
+    CREATE_USER_SQL = String.format(
+        "INSERT INTO %s.\"user\" (id, first_name, second_name, birthdate, biography, city, password)"
+            + "VALUES (:id, :first_name, :second_name, :birthdate, :biography, :city, :password) RETURNING id",
+        schema);
+    GET_USER_BY_ID_SQL = String.format(
+        "SELECT * FROM %s.\"user\" WHERE id = :id", schema);
+    SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME = String.format("SELECT * FROM "
+            + "%s.\"user\" WHERE first_name LIKE :firstName and second_name LIKE :secondName ORDER BY id",
+        schema);
+  }
 
   private final NamedParameterJdbcTemplate template;
 
   public String createUser(UserRegisterPostRequest userRegisterPostRequest) {
-    SqlParameterSource parameterSource = new MapSqlParameterSource()
-        .addValue("id", UUID.randomUUID().toString())
-        .addValue("first_name", userRegisterPostRequest.getFirstName())
-        .addValue("second_name", userRegisterPostRequest.getSecondName())
-        .addValue("birthdate", userRegisterPostRequest.getBirthdate())
-        .addValue("biography", userRegisterPostRequest.getBiography())
-        .addValue("city", userRegisterPostRequest.getCity())
-        .addValue("password", userRegisterPostRequest.getPassword());
+    SqlParameterSource parameterSource = getUserRegisterParameter(userRegisterPostRequest);
     return template.queryForObject(CREATE_USER_SQL, parameterSource, String.class);
   }
 
   public UserWithPassword getUserByIdWithCred(String id) {
     SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("id", id);
-    return template.queryForObject(GET_USER_BY_ID_SQL, parameterSource, (RowMapper<UserWithPassword>) (rs, rowNum) -> UserWithPassword.builder()
-        .id(rs.getString("id"))
-        .firstName(rs.getString("first_name"))
-        .secondName(rs.getString("second_name"))
-        .birthdate(rs.getDate("birthdate").toLocalDate())
-        .biography(rs.getString("biography"))
-        .city(rs.getString("city"))
-        .password(rs.getString("password"))
-        .build());
+    return template.queryForObject(GET_USER_BY_ID_SQL,
+        parameterSource,
+        (RowMapper<UserWithPassword>) (rs, rowNum) -> UserWithPassword.builder()
+            .id(rs.getString("id"))
+            .firstName(rs.getString("first_name"))
+            .secondName(rs.getString("second_name"))
+            .birthdate(rs.getDate("birthdate").toLocalDate())
+            .biography(rs.getString("biography"))
+            .city(rs.getString("city"))
+            .password(rs.getString("password"))
+            .build());
   }
 
   public Optional<User> getUserById(String id) {
@@ -63,5 +74,44 @@ public class UserRepository {
             .city(rs.getString("city"))
             .build());
     return Optional.ofNullable(user);
+  }
+
+  public List<User> searchUsersByPrefixFirstAndLastName(String firstName, String lastName) {
+    SqlParameterSource parameterSource = new MapSqlParameterSource()
+        .addValue("firstName", firstName + '%')
+        .addValue("secondName", lastName + '%');
+    return template.query(SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME, parameterSource,
+        (rs, rowNum) -> User.builder()
+            .id(rs.getString("id"))
+            .firstName(rs.getString("first_name"))
+            .secondName(rs.getString("second_name"))
+            .birthdate(rs.getDate("birthdate").toLocalDate())
+            .biography(rs.getString("biography"))
+            .city(rs.getString("city"))
+            .build());
+
+  }
+
+  public void createUsers(List<UserRegisterPostRequest> usersRegisterPostRequest) {
+
+    List<SqlParameterSource> sqlParameterSources = new ArrayList<>();
+
+    for (UserRegisterPostRequest userRequest : usersRegisterPostRequest) {
+      sqlParameterSources.add(getUserRegisterParameter(userRequest));
+    }
+
+    template.batchUpdate(CREATE_USER_SQL, sqlParameterSources.toArray(new SqlParameterSource[0]));
+  }
+
+  private SqlParameterSource getUserRegisterParameter(
+      UserRegisterPostRequest userRegisterPostRequest) {
+    return new MapSqlParameterSource()
+        .addValue("id", UUID.randomUUID().toString())
+        .addValue("first_name", userRegisterPostRequest.getFirstName())
+        .addValue("second_name", userRegisterPostRequest.getSecondName())
+        .addValue("birthdate", userRegisterPostRequest.getBirthdate())
+        .addValue("biography", userRegisterPostRequest.getBiography())
+        .addValue("city", userRegisterPostRequest.getCity())
+        .addValue("password", userRegisterPostRequest.getPassword());
   }
 }
