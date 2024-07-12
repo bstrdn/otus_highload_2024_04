@@ -1,8 +1,8 @@
 version: '3.8'
 services:
 
-  postgres:
-    container_name: postgres
+  postgres_master:
+    container_name: postgres_master
     image: postgres:14.3-alpine
     restart: always
     environment:
@@ -10,6 +10,19 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data/
+      - ./postgres_data_master:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "15432:5432"
+
+  postgres_slave:
+    container_name: postgres_slave
+    image: postgres:14.3-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgres_data_slave:/var/lib/postgresql/data/
+    ports:
+      - "25432:5432"
