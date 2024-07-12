@@ -1,6 +1,7 @@
 package ru.bstrdn.service;
 
 import java.util.Base64;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.bstrdn.data.dto.LoginPostRequest;
@@ -26,6 +27,15 @@ public class UserService {
   public String createUser(UserRegisterPostRequest userRegisterPostRequest) {
     userRegisterPostRequest.setPassword("{noop}" + userRegisterPostRequest.getPassword());
     return userRepository.createUser(userRegisterPostRequest);
+  }
+
+  /**
+   * Создание группы пользователей
+   * @param usersRegisterPostRequest - запрос на создание пользователя
+   * @return id созданного пользователя
+   */
+  public void createUsers(List<UserRegisterPostRequest> usersRegisterPostRequest) {
+    userRepository.createUsers(usersRegisterPostRequest);
   }
 
   /**
@@ -57,6 +67,16 @@ public class UserService {
       return token(loginPostRequest);
     }
     throw new RuntimeException();
+  }
+
+  /**
+   * Поиск юзера по префиксу имени и фамилии (одновременно)
+   * @param firstName Имя
+   * @param lastName Фамилия
+   * @return найденные пользователи
+   */
+  public List<User> searchUsers(String firstName, String lastName) {
+    return userRepository.searchUsersByPrefixFirstAndLastName(firstName, lastName);
   }
 
   private String token(LoginPostRequest loginPostRequest) {

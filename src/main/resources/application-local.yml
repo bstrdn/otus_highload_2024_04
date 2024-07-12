@@ -2,6 +2,10 @@ server:
   port: ${SERVER_PORT:9999}
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   application:
     name: otus_highload
   datasource:
@@ -11,3 +15,9 @@ spring:
     driver-class-name: org.postgresql.Driver
   liquibase:
     default-schema: ${DATASOURCE_DEFAULT_SCHEMA:otus_highload}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'prometheus, health'

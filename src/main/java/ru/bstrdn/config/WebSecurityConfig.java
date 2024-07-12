@@ -37,6 +37,8 @@ public class WebSecurityConfig {
       "/swagger-ui/**",
       "/webjars/**",
       "/swagger-ui.html",
+      "/user/register",
+      "/metrics",
   };
 
   @Bean
