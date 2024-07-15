@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,7 +17,6 @@ import ru.bstrdn.data.dto.UserRegisterPostRequest;
 import ru.bstrdn.data.dto.UserWithPassword;
 
 @Repository
-@RequiredArgsConstructor
 public class UserRepository {
 
   @Value("${spring.liquibase.default-schema}")
@@ -27,6 +25,16 @@ public class UserRepository {
   private String CREATE_USER_SQL;
   private String GET_USER_BY_ID_SQL;
   private String SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME;
+
+  private final NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate;
+  private final NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate;
+
+  public UserRepository(
+      @Qualifier("masterNamedParameterJdbcTemplate") NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate,
+      @Qualifier("slaveNamedParameterJdbcTemplate") NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate) {
+    this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
+    this.slaveNamedParameterJdbcTemplate = slaveNamedParameterJdbcTemplate;
+  }
 
   @PostConstruct
   private void initSqlQuery() {
@@ -40,12 +48,6 @@ public class UserRepository {
             + "%s.\"user\" WHERE first_name LIKE :firstName and second_name LIKE :secondName ORDER BY id",
         schema);
   }
-
-  @Qualifier("masterNamedParameterJdbcTemplate")
-  private final NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate;
-
-  @Qualifier("slaveNamedParameterJdbcTemplate")
-  private final NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate;
 
   public String createUser(UserRegisterPostRequest userRegisterPostRequest) {
     SqlParameterSource parameterSource = getUserRegisterParameter(userRegisterPostRequest);

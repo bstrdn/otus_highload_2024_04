@@ -10,16 +10,16 @@ spring:
     name: otus_highload
   datasource:
     master:
-      jdbc-url: ${DATASOURCE_URL:jdbc:postgresql://localhost:15432/postgres}
-      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:15432/postgres}
+      jdbc-url: ${DATASOURCE_MASTER_URL:jdbc:postgresql://localhost:5432/postgres}
+      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
       username: postgres
-      password: postgres
+      password: pass
       driver-class-name: org.postgresql.Driver
     slave:
-      jdbc-url: ${DATASOURCE_URL:jdbc:postgresql://localhost:25432/postgres}
-      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:25432/postgres}
+      jdbc-url: ${DATASOURCE_SLAVE_URL:jdbc:postgresql://localhost:15432/postgres}
+      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:15432/postgres}
       username: postgres
-      password: postgres
+      password: pass
       driver-class-name: org.postgresql.Driver
   liquibase:
     default-schema: ${DATASOURCE_DEFAULT_SCHEMA:otus_highload}

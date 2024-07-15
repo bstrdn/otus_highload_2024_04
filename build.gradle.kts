@@ -95,7 +95,7 @@ dependencies {
     //db
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("org.liquibase:liquibase-core:4.28.0")
-    implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.5.0")
+    implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.5.1")
 
     //prometheus
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.1")
