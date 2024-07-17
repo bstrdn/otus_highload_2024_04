@@ -1,15 +1,48 @@
 version: '3.8'
 services:
 
-  postgres:
-    container_name: postgres
-    image: postgres:14.3-alpine
-    restart: always
+  app:
+    container_name: app
+    image: app
+    restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: postgres
+      SERVER_PORT: 9999
+      DATASOURCE_MASTER_URL: jdbc:postgresql://localhost:5432/postgres
+      DATASOURCE_SLAVE_URL: jdbc:postgresql://localhost:15432/postgres
+      DATASOURCE_DEFAULT_SCHEMA: otus_highload
+    networks:
+      - pgnet
+
+  pgmaster:
+    container_name: pgmaster
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: pass
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data/
+      - ./postgres_data_master:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+    networks:
+      - pgnet
+
+
+  pgslave :
+    container_name: pgslave
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgres_data_slave:/var/lib/postgresql/data/
+    ports:
+      - "15432:5432"
+    networks:
+      - pgnet
+
+networks:
+  pgnet:

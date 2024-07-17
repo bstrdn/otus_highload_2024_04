@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -17,7 +17,6 @@ import ru.bstrdn.data.dto.UserRegisterPostRequest;
 import ru.bstrdn.data.dto.UserWithPassword;
 
 @Repository
-@RequiredArgsConstructor
 public class UserRepository {
 
   @Value("${spring.liquibase.default-schema}")
@@ -26,6 +25,16 @@ public class UserRepository {
   private String CREATE_USER_SQL;
   private String GET_USER_BY_ID_SQL;
   private String SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME;
+
+  private final NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate;
+  private final NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate;
+
+  public UserRepository(
+      @Qualifier("masterNamedParameterJdbcTemplate") NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate,
+      @Qualifier("slaveNamedParameterJdbcTemplate") NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate) {
+    this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
+    this.slaveNamedParameterJdbcTemplate = slaveNamedParameterJdbcTemplate;
+  }
 
   @PostConstruct
   private void initSqlQuery() {
@@ -40,16 +49,14 @@ public class UserRepository {
         schema);
   }
 
-  private final NamedParameterJdbcTemplate template;
-
   public String createUser(UserRegisterPostRequest userRegisterPostRequest) {
     SqlParameterSource parameterSource = getUserRegisterParameter(userRegisterPostRequest);
-    return template.queryForObject(CREATE_USER_SQL, parameterSource, String.class);
+    return masterNamedParameterJdbcTemplate.queryForObject(CREATE_USER_SQL, parameterSource, String.class);
   }
 
   public UserWithPassword getUserByIdWithCred(String id) {
     SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("id", id);
-    return template.queryForObject(GET_USER_BY_ID_SQL,
+    return slaveNamedParameterJdbcTemplate.queryForObject(GET_USER_BY_ID_SQL,
         parameterSource,
         (RowMapper<UserWithPassword>) (rs, rowNum) -> UserWithPassword.builder()
             .id(rs.getString("id"))
@@ -64,7 +71,7 @@ public class UserRepository {
 
   public Optional<User> getUserById(String id) {
     SqlParameterSource parameterSource = new MapSqlParameterSource().addValue("id", id);
-    User user = template.queryForObject(GET_USER_BY_ID_SQL, parameterSource,
+    User user = slaveNamedParameterJdbcTemplate.queryForObject(GET_USER_BY_ID_SQL, parameterSource,
         (rs, rowNum) -> User.builder()
             .id(rs.getString("id"))
             .firstName(rs.getString("first_name"))
@@ -80,7 +87,7 @@ public class UserRepository {
     SqlParameterSource parameterSource = new MapSqlParameterSource()
         .addValue("firstName", firstName + '%')
         .addValue("secondName", lastName + '%');
-    return template.query(SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME, parameterSource,
+    return slaveNamedParameterJdbcTemplate.query(SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME, parameterSource,
         (rs, rowNum) -> User.builder()
             .id(rs.getString("id"))
             .firstName(rs.getString("first_name"))
@@ -100,7 +107,7 @@ public class UserRepository {
       sqlParameterSources.add(getUserRegisterParameter(userRequest));
     }
 
-    template.batchUpdate(CREATE_USER_SQL, sqlParameterSources.toArray(new SqlParameterSource[0]));
+    masterNamedParameterJdbcTemplate.batchUpdate(CREATE_USER_SQL, sqlParameterSources.toArray(new SqlParameterSource[0]));
   }
 
   private SqlParameterSource getUserRegisterParameter(

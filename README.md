@@ -10,3 +10,4 @@
 3. Запустить spring boot приложение с профилем local ```Application.main()```
 4. Перейти по ссылке [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) для доступа через swagger
 5. Для постмана использовать приложенную коллекцию [postman_collection](otus_highload.postman_collection.json)
+6. Для запуска в докере запустить docker-compose (лежит в корне)
