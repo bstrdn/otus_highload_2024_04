@@ -30,4 +30,15 @@ public class ParserController {
       throw new RuntimeException(e);
     }
   }
+
+  @PostMapping("/post")
+  public ResponseEntity<String> parsePostForRandomUsers(@RequestParam("file") MultipartFile file) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+      List<String> list = br.lines().toList();
+      parserService.parsePostForRandomUsers(list);
+      return ResponseEntity.ok(String.format("File %s successfully parse", file.getName()));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

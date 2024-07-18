@@ -4,16 +4,16 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import ru.bstrdn.data.dto.LoginPost200Response;
-import ru.bstrdn.data.dto.LoginPostRequest;
-import ru.bstrdn.data.dto.User;
-import ru.bstrdn.data.dto.UserRegisterPost200Response;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
+import ru.bstrdn.data.model.LoginPost200Response;
+import ru.bstrdn.data.model.LoginPostRequest;
+import ru.bstrdn.data.model.User;
+import ru.bstrdn.data.model.UserRegisterPost200Response;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
 import ru.bstrdn.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController implements DefaultApi {
+public class UserController implements UserControllerApi {
 
   private final UserService userService;
 
@@ -40,5 +40,15 @@ public class UserController implements DefaultApi {
   public ResponseEntity<List<User>> userSearchGet(String firstName, String lastName) {
     List<User> users = userService.searchUsers(firstName, lastName);
     return ResponseEntity.ok(users);
+  }
+
+  @Override
+  public ResponseEntity<Void> friendDeleteUserIdPut(String userId) {
+    return UserControllerApi.super.friendDeleteUserIdPut(userId);
+  }
+
+  @Override
+  public ResponseEntity<Void> friendSetUserIdPut(String userId) {
+    return UserControllerApi.super.friendSetUserIdPut(userId);
   }
 }

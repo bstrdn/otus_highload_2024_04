@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-import ru.bstrdn.data.dto.UserWithPassword;
+import ru.bstrdn.data.model.UserWithPassword;
 import ru.bstrdn.service.UserService;
 
 @Slf4j

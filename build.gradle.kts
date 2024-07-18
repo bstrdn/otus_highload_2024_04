@@ -35,7 +35,7 @@ repositories {
 
 val generatedProjectDir = "$projectDir/build/generated"
 val controllerDir = "ru.bstrdn.controller"
-val modelDir = "ru.bstrdn.data.dto"
+val modelDir = "ru.bstrdn.data.model"
 val openapiJson = "$projectDir/src/main/resources/openapi.json"
 
 tasks.named<GenerateTask>("openApiGenerate") {
@@ -97,9 +97,13 @@ dependencies {
     implementation("org.liquibase:liquibase-core:4.28.0")
     implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.5.1")
 
+    //redis
+    implementation("redis.clients:jedis")
+
     //prometheus
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.1")
     implementation("org.springframework.boot:spring-boot-starter-actuator:3.3.1")
+
 
 }
 

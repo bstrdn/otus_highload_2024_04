@@ -12,9 +12,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
-import ru.bstrdn.data.dto.User;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
-import ru.bstrdn.data.dto.UserWithPassword;
+import ru.bstrdn.data.model.User;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
+import ru.bstrdn.data.model.UserWithPassword;
 
 @Repository
 public class UserRepository {

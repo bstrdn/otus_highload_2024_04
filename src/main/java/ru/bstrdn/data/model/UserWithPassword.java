@@ -1,4 +1,4 @@
-package ru.bstrdn.data.dto;
+package ru.bstrdn.data.model;
 
 import java.util.Set;
 import lombok.Data;

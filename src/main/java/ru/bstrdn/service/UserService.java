@@ -4,10 +4,10 @@ import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.bstrdn.data.dto.LoginPostRequest;
-import ru.bstrdn.data.dto.User;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
-import ru.bstrdn.data.dto.UserWithPassword;
+import ru.bstrdn.data.model.LoginPostRequest;
+import ru.bstrdn.data.model.User;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
+import ru.bstrdn.data.model.UserWithPassword;
 import ru.bstrdn.data.repository.UserRepository;
 
 /**
