@@ -1,42 +1,62 @@
 package ru.bstrdn.service;
 
-import jakarta.annotation.PostConstruct;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
 import ru.bstrdn.data.model.Post;
+import ru.bstrdn.data.model.PostCreatePostRequest;
 import ru.bstrdn.data.model.PostCreateRequest;
+import ru.bstrdn.data.model.PostUpdatePutRequest;
 import ru.bstrdn.data.repository.PostRepository;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
-  private final Jedis jedis;
   private final PostRepository postRepository;
 
-  @PostConstruct
-  void test() {
-    Set<String> keys = jedis.keys("*");
-    List<String> mget = jedis.mget(keys.toArray(new String[0]));
-    System.out.println(mget);
+  public List<Post> getFeed(long offset, long limit) {
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    return getFeedWithUserId(offset, limit, userId);
   }
 
-
-
-  public List<Post> getFeed(long offset, long limit) {
-    return List.of();
+  public List<Post> getFeedWithUserId(long offset, long limit, String userId) {
+    return postRepository.getFriendsFeed(offset, limit, userId);
   }
 
 
   /**
    * Генерация постов
+   *
    * @param userPosts - набор постов для генерации
    */
   public void createPosts(List<PostCreateRequest> userPosts) {
-    postRepository.createUsers(userPosts);
+    postRepository.createPosts(userPosts);
   }
 
+  /**
+   * Добавление поста
+   *
+   * @param postCreatePostRequest запрос на добавление поста
+   * @return идентификатор новой записи
+   */
+  public String createPost(PostCreatePostRequest postCreatePostRequest) {
+    return postRepository.createPost(postCreatePostRequest);
+  }
+
+  public void deletePost(String id) {
+    postRepository.deleteByPostIdAndUserId(id,
+        SecurityContextHolder.getContext().getAuthentication().getName());
+  }
+
+  public Post getPost(String id) {
+    return postRepository.getPostById(id,
+        SecurityContextHolder.getContext().getAuthentication().getName());
+  }
+
+  public void updatePost(PostUpdatePutRequest postUpdatePutRequest) {
+    postRepository.updatePost(postUpdatePutRequest,
+        SecurityContextHolder.getContext().getAuthentication().getName());
+  }
 }

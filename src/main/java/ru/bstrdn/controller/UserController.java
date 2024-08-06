@@ -49,6 +49,7 @@ public class UserController implements UserControllerApi {
 
   @Override
   public ResponseEntity<Void> friendSetUserIdPut(String userId) {
-    return UserControllerApi.super.friendSetUserIdPut(userId);
+    userService.setFriend(userId);
+    return ResponseEntity.ok().build();
   }
 }

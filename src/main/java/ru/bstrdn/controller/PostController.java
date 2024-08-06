@@ -24,21 +24,28 @@ public class PostController implements PostControllerApi {
 
   @Override
   public ResponseEntity<String> postCreatePost(PostCreatePostRequest postCreatePostRequest) {
-    return PostControllerApi.super.postCreatePost(postCreatePostRequest);
+    return ResponseEntity.ok(postService.createPost(postCreatePostRequest));
   }
 
   @Override
   public ResponseEntity<Void> postDeleteIdPut(String id) {
-    return PostControllerApi.super.postDeleteIdPut(id);
+    postService.deletePost(id);
+    return ResponseEntity.ok().build();
   }
 
   @Override
   public ResponseEntity<Post> postGetIdGet(String id) {
-    return PostControllerApi.super.postGetIdGet(id);
+    Post post = postService.getPost(id);
+    if (post == null) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(post);
+    }
   }
 
   @Override
   public ResponseEntity<Void> postUpdatePut(PostUpdatePutRequest postUpdatePutRequest) {
-    return PostControllerApi.super.postUpdatePut(postUpdatePutRequest);
+    postService.updatePost(postUpdatePutRequest);
+    return ResponseEntity.ok().build();
   }
 }

@@ -98,12 +98,14 @@ dependencies {
     implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.5.1")
 
     //redis
-    implementation("redis.clients:jedis")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     //prometheus
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.1")
     implementation("org.springframework.boot:spring-boot-starter-actuator:3.3.1")
 
+    //kafka
+    implementation("org.springframework.kafka:spring-kafka")
 
 }
 

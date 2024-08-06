@@ -9,7 +9,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.bstrdn.data.model.PostCreateRequest;
-import ru.bstrdn.data.model.UserPost;
 import ru.bstrdn.data.model.UserRegisterPostRequest;
 
 @Service
@@ -66,6 +65,9 @@ public class ParserService {
         batchCount = 0;
         userPosts.clear();
       }
+    }
+    if (batchCount < batchSize) {
+      postService.createPosts(userPosts);
     }
   }
 }
