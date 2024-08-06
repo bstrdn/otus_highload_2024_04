@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/1.0.0/changes/000-initSchema.sql
   - include:
       file: db/changelog/1.0.0/changes/001-add_constraint.sql
+  - include:
+      file: db/changelog/1.0.0/changes/002-add_table_post.sql
+  - include:
+      file: db/changelog/1.0.0/changes/003-add_table_user_friend.sql

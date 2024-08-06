@@ -13,36 +13,19 @@ spring:
       jdbc-url: ${DATASOURCE_MASTER_URL:jdbc:postgresql://localhost:5432/postgres}
       url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
       username: postgres
-      password: postgres
+      password: pass
       driver-class-name: org.postgresql.Driver
     slave:
-      jdbc-url: ${DATASOURCE_SLAVE_URL:jdbc:postgresql://localhost:5432/postgres}
-      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+      jdbc-url: ${DATASOURCE_SLAVE_URL:jdbc:postgresql://localhost:15432/postgres}
+      url: ${DATASOURCE_URL:jdbc:postgresql://localhost:15432/postgres}
       username: postgres
-      password: postgres
+      password: pass
       driver-class-name: org.postgresql.Driver
   liquibase:
     default-schema: ${DATASOURCE_DEFAULT_SCHEMA:otus_highload}
-  data:
-    redis:
-      port: 6379
-      timeout: 5000
-      host: localhost
-      client-type: jedis
-  kafka:
-    bootstrap-servers: localhost:29092
-    consumer:
-      group-id: highload
 
 management:
   endpoints:
     web:
       exposure:
         include: 'prometheus, health'
-
-highload:
-  kafka:
-    topic:
-      out:
-        feed-notification: feed.notification
-        update-feed-notification: update.feed.notification

@@ -3,11 +3,12 @@ package ru.bstrdn.service;
 import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.bstrdn.data.dto.LoginPostRequest;
-import ru.bstrdn.data.dto.User;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
-import ru.bstrdn.data.dto.UserWithPassword;
+import ru.bstrdn.data.model.LoginPostRequest;
+import ru.bstrdn.data.model.User;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
+import ru.bstrdn.data.model.UserWithPassword;
 import ru.bstrdn.data.repository.UserRepository;
 
 /**
@@ -79,8 +80,16 @@ public class UserService {
     return userRepository.searchUsersByPrefixFirstAndLastName(firstName, lastName);
   }
 
+  public void setFriend(String friendId) {
+    userRepository.setFriend(friendId);
+  }
+
   private String token(LoginPostRequest loginPostRequest) {
     String credentials = loginPostRequest.getId() + ":" + loginPostRequest.getPassword();
     return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
+  }
+
+  public List<String> getUserFriendsId(String userId) {
+    return userRepository.getUserFriendsId(userId);
   }
 }

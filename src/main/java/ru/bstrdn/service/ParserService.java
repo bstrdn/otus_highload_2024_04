@@ -1,19 +1,26 @@
 package ru.bstrdn.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
+import ru.bstrdn.data.model.PostCreateRequest;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
 
 @Service
 @RequiredArgsConstructor
 public class ParserService {
 
+  List<String> testUsersId = List.of("u1", "u2", "u3", "u4", "u5", "u6");
+  Random random = new Random();
+
   private final UserService userService;
-  private final int batchSize = 10000;
+  private final PostService postService;
+  private final int batchSize = 1000;
 
   public void parseUser(List<String> list) {
     int batchCount = 0;
@@ -39,6 +46,28 @@ public class ParserService {
         batchCount = 0;
         userRegisterRequests.clear();
       }
+    }
+  }
+
+  public void parsePostForRandomUsers(List<String> list) {
+    int batchCount = 0;
+    List<PostCreateRequest> userPosts = new ArrayList<>();
+    for (String line : list) {
+      PostCreateRequest userPost = PostCreateRequest.builder()
+          .text(line)
+          .createdAt(LocalDateTime.now())
+          .id(UUID.randomUUID().toString())
+          .authorUserId(testUsersId.get(random.nextInt(0, testUsersId.size()))).build();
+      userPosts.add(userPost);
+
+      if (batchCount >= batchSize) {
+        postService.createPosts(userPosts);
+        batchCount = 0;
+        userPosts.clear();
+      }
+    }
+    if (batchCount < batchSize) {
+      postService.createPosts(userPosts);
     }
   }
 }

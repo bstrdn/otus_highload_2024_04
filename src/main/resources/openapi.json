@@ -7,6 +7,7 @@
   "paths": {
     "/login": {
       "post": {
+        "tags": ["UserController"],
         "description": "Упрощенный процесс аутентификации путем передачи идентификатор пользователя и получения токена для дальнейшего прохождения авторизации",
         "requestBody": {
           "content": {
@@ -60,6 +61,7 @@
     },
     "/user/register": {
       "post": {
+        "tags": ["UserController"],
         "description": "Регистрация нового пользователя",
         "requestBody": {
           "content": {
@@ -126,6 +128,7 @@
     },
     "/user/get/{id}": {
       "get": {
+        "tags": ["UserController"],
         "description": "Получение анкеты пользователя",
         "parameters": [
           {
@@ -166,6 +169,7 @@
     },
     "/user/search": {
       "get": {
+        "tags": ["UserController"],
         "description": "Поиск анкет",
         "parameters": [
           {
@@ -219,6 +223,7 @@
     },
     "/friend/set/{user_id}": {
       "put": {
+        "tags": ["UserController"],
         "security": [
           {
             "bearerAuth": []
@@ -255,6 +260,7 @@
     },
     "/friend/delete/{user_id}": {
       "put": {
+        "tags": ["UserController"],
         "security": [
           {
             "bearerAuth": []
@@ -291,6 +297,7 @@
     },
     "/post/create": {
       "post": {
+        "tags": ["PostController"],
         "security": [
           {
             "bearerAuth": []
@@ -339,6 +346,7 @@
     },
     "/post/update": {
       "put": {
+        "tags": ["PostController"],
         "security": [
           {
             "bearerAuth": []
@@ -383,6 +391,7 @@
     },
     "/post/delete/{id}": {
       "put": {
+        "tags": ["PostController"],
         "security": [
           {
             "bearerAuth": []
@@ -419,6 +428,7 @@
     },
     "/post/get/{id}": {
       "get": {
+        "tags": ["PostController"],
         "parameters": [
           {
             "name": "id",
@@ -457,6 +467,7 @@
     },
     "/post/feed": {
       "get": {
+        "tags": ["PostController"],
         "security": [
           {
             "bearerAuth": []

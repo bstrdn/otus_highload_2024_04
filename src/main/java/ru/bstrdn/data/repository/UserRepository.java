@@ -11,10 +11,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
-import ru.bstrdn.data.dto.User;
-import ru.bstrdn.data.dto.UserRegisterPostRequest;
-import ru.bstrdn.data.dto.UserWithPassword;
+import ru.bstrdn.data.model.User;
+import ru.bstrdn.data.model.UserRegisterPostRequest;
+import ru.bstrdn.data.model.UserWithPassword;
 
 @Repository
 public class UserRepository {
@@ -25,6 +26,8 @@ public class UserRepository {
   private String CREATE_USER_SQL;
   private String GET_USER_BY_ID_SQL;
   private String SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME;
+  private String SET_FRIEND;
+  private String GET_FRIENDS_ID;
 
   private final NamedParameterJdbcTemplate masterNamedParameterJdbcTemplate;
   private final NamedParameterJdbcTemplate slaveNamedParameterJdbcTemplate;
@@ -47,11 +50,16 @@ public class UserRepository {
     SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME = String.format("SELECT * FROM "
             + "%s.\"user\" WHERE first_name LIKE :firstName and second_name LIKE :secondName ORDER BY id",
         schema);
+    SET_FRIEND = String.format(
+        "INSERT INTO %s.user_friend (user_id, friend_id) VALUES (:user_id, :friend_id)", schema);
+    GET_FRIENDS_ID = String.format("SELECT * FROM %s.\"user_friend\" WHERE user_id = :user_id",
+        schema);
   }
 
   public String createUser(UserRegisterPostRequest userRegisterPostRequest) {
     SqlParameterSource parameterSource = getUserRegisterParameter(userRegisterPostRequest);
-    return masterNamedParameterJdbcTemplate.queryForObject(CREATE_USER_SQL, parameterSource, String.class);
+    return masterNamedParameterJdbcTemplate.queryForObject(CREATE_USER_SQL, parameterSource,
+        String.class);
   }
 
   public UserWithPassword getUserByIdWithCred(String id) {
@@ -87,7 +95,8 @@ public class UserRepository {
     SqlParameterSource parameterSource = new MapSqlParameterSource()
         .addValue("firstName", firstName + '%')
         .addValue("secondName", lastName + '%');
-    return slaveNamedParameterJdbcTemplate.query(SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME, parameterSource,
+    return slaveNamedParameterJdbcTemplate.query(SEARCH_USERS_BY_PREFIX_FIRST_AND_LAST_NAME,
+        parameterSource,
         (rs, rowNum) -> User.builder()
             .id(rs.getString("id"))
             .firstName(rs.getString("first_name"))
@@ -107,7 +116,8 @@ public class UserRepository {
       sqlParameterSources.add(getUserRegisterParameter(userRequest));
     }
 
-    masterNamedParameterJdbcTemplate.batchUpdate(CREATE_USER_SQL, sqlParameterSources.toArray(new SqlParameterSource[0]));
+    masterNamedParameterJdbcTemplate.batchUpdate(CREATE_USER_SQL,
+        sqlParameterSources.toArray(new SqlParameterSource[0]));
   }
 
   private SqlParameterSource getUserRegisterParameter(
@@ -120,5 +130,19 @@ public class UserRepository {
         .addValue("biography", userRegisterPostRequest.getBiography())
         .addValue("city", userRegisterPostRequest.getCity())
         .addValue("password", userRegisterPostRequest.getPassword());
+  }
+
+  public void setFriend(String friendId) {
+    SqlParameterSource parameterSource = new MapSqlParameterSource()
+        .addValue("user_id", SecurityContextHolder.getContext().getAuthentication().getName())
+        .addValue("friend_id", friendId);
+    masterNamedParameterJdbcTemplate.update(SET_FRIEND, parameterSource);
+  }
+
+  public List<String> getUserFriendsId(String currenUserId) {
+    SqlParameterSource parameterSource = new MapSqlParameterSource()
+        .addValue("user_id", currenUserId);
+    return slaveNamedParameterJdbcTemplate.query(GET_FRIENDS_ID, parameterSource,
+        (rs, rowNum) -> rs.getString("friend_id"));
   }
 }
